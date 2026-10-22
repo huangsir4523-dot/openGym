@@ -66,6 +66,19 @@ function worker(all = new Map()) {
 }
 
 describe('sw.js exercise media', () => {
+  it('keeps the offline caches of other GitHub Pages apps', async () => {
+    const w = worker()
+    const suncheck = await w.caches.open('suncheck-v1')
+    await suncheck.put('/Suncheck/index.html', new Response('Suncheck'))
+    const old = await w.caches.open('opengym-rt-oldbuild')
+    await old.put('index.html', new Response('old gym'))
+    const shell = await w.caches.open(BUILD)
+    await shell.put('index.html', new Response('new gym'))
+    await w.activate()
+    expect(await w.caches.keys()).toContain('suncheck-v1')
+    expect(await w.caches.keys()).not.toContain('opengym-rt-oldbuild')
+    expect(await (await suncheck.match('/Suncheck/index.html')).text()).toBe('Suncheck')
+  })
   it('is kept in a cache of its own and answers offline from it', async () => {
     const w = worker()
     const res = await w.get('/gif/0001.gif')

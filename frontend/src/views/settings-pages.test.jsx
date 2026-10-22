@@ -11,7 +11,7 @@ import { PAGES, PAGE_IDS, ROOT_GROUPS, SEARCH, pageVisible, searchSettings, page
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
 const mocks = vi.hoisted(() => {
-  const state = { S: null, user: null, sync: null, MOBILE: false, push: false, sheets: [], navs: [], toast: null }
+  const state = { S: null, user: null, sync: null, MOBILE: false, PERSONAL: false, push: false, sheets: [], navs: [], toast: null }
   state.snapshot = () => ({
     S: state.S, user: state.user, coachLocal: null, sync: state.sync, config: null,
     update: mut => { const next = structuredClone(state.S); mut(next); state.S = next },
@@ -32,6 +32,7 @@ vi.mock('../store/useUI.js', () => {
   return { useUI }
 })
 vi.mock('react-router-dom', () => ({ useNavigate: () => (...a) => mocks.navs.push(a) }))
+vi.mock('../lib/demo.js', () => ({ DEMO: false, get PERSONAL() { return mocks.PERSONAL }, REPO: 'https://github.com/huangsir4523-dot/openGym' }))
 vi.mock('../lib/api.js', () => ({ api: vi.fn(path => Promise.resolve(path === '/api/account/passkeys' ? { passkeys: [] } : {})), webauthnOK: () => false, passkeyLogin: vi.fn(), passkeyRegister: vi.fn(), IS_ANDROID: false }))
 vi.mock('../lib/push.js', () => ({ pushSupported: () => mocks.push, enablePush: vi.fn(), disablePush: vi.fn(), sendTestPush: vi.fn(), syncPushSubscription: vi.fn(() => Promise.resolve(mocks.pushOn)) }))
 vi.mock('../lib/wakelock.js', () => ({ wakeLockSupported: () => true }))
@@ -56,6 +57,7 @@ beforeEach(() => {
   mocks.user = null
   mocks.sync = null
   mocks.MOBILE = false
+  mocks.PERSONAL = false
   mocks.push = false
   mocks.pushOn = false
   mocks.toast = vi.fn()
@@ -73,6 +75,21 @@ afterEach(() => {
 })
 
 const mount = (page = null, find = null, via = null) => act(() => root.render(<Settings page={page} find={find} via={via} />))
+
+it('shows local data and backup instead of account and demo actions in the personal build', async () => {
+  mocks.PERSONAL = true
+  await mount('account')
+  expect(host.textContent).toContain('All data stays on this phone')
+  expect(host.textContent).toContain('Data & backup')
+  expect(host.textContent).not.toMatch(/Reset demo|Sign in|Connect to my server|Passkeys/)
+})
+
+it('does not offer server actions in personal settings search', () => {
+  const ctx = { personal: true, user: null, mobile: false, demo: false, webauthn: true, pwOn: true }
+  for (const query of ['passkey', 'password', 'demo', 'connection']) {
+    expect(searchSettings(query, ctx)).toEqual([])
+  }
+})
 const rowTitled = title => [...host.querySelectorAll('.lrow')].find(r => r.querySelector('.lrow-t')?.textContent === title)
 const titles = () => [...host.querySelectorAll('.lrow .lrow-t')].map(e => e.textContent)
 

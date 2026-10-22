@@ -172,6 +172,7 @@ export function searchSettings(query, ctx, tr = t) {
   const q = words.join(' ')
   const hits = []
   const consider = (entry, isPage) => {
+    if (ctx.personal && (entry.page === 'account' || entry.title === 'Show connection status')) return
     const title = tr(entry.title)
     const opts = entry.opts || []
     // What the screen says, in the app's language: anywhere in a word, since German and others

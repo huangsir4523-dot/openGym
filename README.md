@@ -1,3 +1,33 @@
+# openGym · iPhone 个人网页版
+
+这是基于 [DuarteSantos8/openGym](https://github.com/DuarteSantos8/openGym) 的非商业个人分支，沿用 Suncheck 的 GitHub Pages + 本地存储方式。
+
+**打开：<https://huangsir4523-dot.github.io/openGym/>**
+
+iPhone 用 Safari 打开，点击“分享 → 添加到主屏幕”。训练计划、逐组记录、休息计时、体重、统计、动作库和中文界面沿用原项目。首次打开没有任何示例训练或称重记录，可自行创建计划或选择入门计划。
+
+- 记录保存在当前浏览器／主屏幕 App 的本地存储中，无账号、无服务器、无跨设备同步。
+- 在“设置 → 数据与备份”导出 JSON；如果添加过自己的照片或视频，请导出包含媒体的 ZIP。换设备、清除浏览器数据或移除 App 前先导出备份。
+- 首次联网加载后可离线打开；动作图片和视频会按使用情况缓存，未加载过的资源仍需联网。
+- 个人版没有服务器推送提醒和 AI 教练；不会提供 Demo 的模拟教练回复。
+- GitHub Pages 公开托管代码和动作资源，不接收个人训练记录。动作媒体保留原授权与署名，仅在这个非商业 openGym 分支中原样使用，详见 [NOTICE.md](NOTICE.md)。
+
+发布由 `.github/workflows/pages.yml` 完成：运行相关回归检查、使用 `VITE_PERSONAL=1` 构建、复制原版 180px 动作媒体，再部署 `frontend/dist`。
+
+本地检查：
+
+```powershell
+cd frontend
+npm.cmd ci
+$env:VITE_PERSONAL='1'
+npm.cmd run build
+npm.cmd run preview
+```
+
+本分支源码按原项目 AGPL-3.0 提供。以下保留上游项目说明，其中服务器、原生 App 与 Demo 的说明不代表本个人网页版启用了这些功能。
+
+---
+
 <div align="center">
 
 <img src="assets/banner.png" alt="openGym" width="720">
